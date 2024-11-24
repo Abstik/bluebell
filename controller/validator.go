@@ -15,15 +15,19 @@ import (
 	zhTranslations "github.com/go-playground/validator/v10/translations/zh"
 )
 
-// 定义一个全局翻译器T
+// 定义一个全局翻译器
 var trans ut.Translator
 
 // InitTrans 初始化翻译器
 func InitTrans(locale string) (err error) {
 	// 修改gin框架中的Validator引擎属性，实现自定制
+	/*这行代码从 Gin 框架中获取当前的验证器引擎，确保它是 go-playground/validator 类型。
+	Gin 中的 binding.Validator 是用于请求数据绑定和校验的工具。*/
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 
 		// 注册一个获取json tag的自定义方法
+		/*注册了一个自定义的标签解析函数，使得 json 标签可以在结构体字段中正确地获取，
+		默认情况下，Go 通过 json 标签来解析结构体字段。"-" 表示忽略该字段。*/
 		v.RegisterTagNameFunc(func(fld reflect.StructField) string {
 			name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
 			if name == "-" {
@@ -66,6 +70,8 @@ func InitTrans(locale string) (err error) {
 }
 
 // 去除提示信息中的结构体名称
+/*移除结构体名称前缀，从而清理校验错误信息。
+比如，如果有一个字段 User.Name，那么通过此函数，会将其转换为 Name，方便返回更简洁的错误信息*/
 func removeTopStruct(fields map[string]string) map[string]string {
 	res := map[string]string{}
 	for field, err := range fields {
@@ -75,6 +81,8 @@ func removeTopStruct(fields map[string]string) map[string]string {
 }
 
 // 自定义SignUpParam结构体校验函数
+/*这是一个自定义的结构体校验函数，主要用于校验注册参数中的 Password 和 RePassword 是否一致。
+具体校验规则是：如果 Password 和 RePassword 不相同，则通过 sl.ReportError 报告错误，提示用户密码和确认密码不一致。*/
 func SignUpParamStructLevelValidation(sl validator.StructLevel) {
 	su := sl.Current().Interface().(models.SignUpParam)
 
@@ -83,12 +91,3 @@ func SignUpParamStructLevelValidation(sl validator.StructLevel) {
 		sl.ReportError(su.RePassword, "re_password", "RePassword", "eqfield", "password")
 	}
 }
-
-/*type SignUpParam struct {
-	Age        uint8  `json:"age" binding:"gte=1,lte=130"`
-	Name       string `json:"name" binding:"required"`
-	Email      string `json:"email" binding:"required,email"`
-	Password   string `json:"password" binding:"required"`
-	RePassword string `json:"re_password" binding:"required,eqfield=Password"`
-}
-*/

@@ -11,6 +11,7 @@ import (
 // 把每一步数据库操作封装成函数
 // 待logic层根据业务需求调用
 
+// 对密码进行加密的盐
 const secret = "Ji Bowen"
 
 // 根据用户名查询用户是否存在
@@ -49,6 +50,7 @@ func encryptPassword(oPasswoed string) string {
 	//hex.EncodeToString：将计算出的 MD5 哈希值（16 字节）转换成一个可读的十六进制字符串，便于存储或显示。
 }
 
+// 用户登录
 func Login(user *models.User) (err error) {
 	oPassWord := user.Password // 用户登录密码
 	//从数据库中查询用户
@@ -67,4 +69,12 @@ func Login(user *models.User) (err error) {
 	}
 
 	return err
+}
+
+// 根据用户id查询用户
+func GetUserById(uid int64) (user *models.User, err error) {
+	user = new(models.User)
+	sqlStr := `select user_id, username from user where user_id = ?`
+	err = db.Get(user, sqlStr, uid)
+	return
 }

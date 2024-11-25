@@ -14,6 +14,7 @@ func CommunityHandler(c *gin.Context) {
 	data, err := logic.GetCommunityList()
 	if err != nil {
 		zap.L().Error("获取社区列表失败", zap.Error(err))
+		ResponseError(c, CodeServerBusy)
 		return
 	}
 	ResponseSuccess(c, data)
@@ -26,6 +27,7 @@ func CommunityDetailHandler(c *gin.Context) {
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	//如果获取请求参数失败
 	if err != nil {
+		zap.L().Error("获取社区详情的参数不正确", zap.Error(err))
 		ResponseError(c, CodeInvalidParam)
 		return
 	}
@@ -33,7 +35,7 @@ func CommunityDetailHandler(c *gin.Context) {
 	//查询到所有的社区，以列表形式返回
 	data, err := logic.GetCommunityDetail(id)
 	if err != nil {
-		zap.L().Error("获取社区列表失败", zap.Error(err))
+		zap.L().Error("获取社区详情失败", zap.Error(err))
 		ResponseError(c, CodeServerBusy)
 		return
 	}

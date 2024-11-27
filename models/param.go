@@ -2,6 +2,12 @@ package models
 
 // 定义请求的参数结构体（DTO）
 
+// 指定排序方式的常量
+const (
+	OrderTime  = "time"
+	OrderScore = "score"
+)
+
 // SignUpParam 用户注册请求参数
 type SignUpParam struct {
 	Username   string `json:"username" binding:"required"`
@@ -21,4 +27,11 @@ type VoteData struct {
 	PostID    string `json:"post_id" bind:"required"`              //帖子id
 	Direction int8   `json:"direction,string" bind:"oneof=-1,0,1"` //赞成票(1)or反对票(-1)or取消投票(0)
 	//oneof=-1,0,1表示该字段的值要求只可能是-1或0或1
+}
+
+// 获取帖子列表的参数，get请求参数拼接在url中不是json
+type PostListParam struct {
+	Page  int64  `json:"page" form:"page"`   //查询第几页的数据
+	Size  int64  `json:"size" form:"size"`   //每页数据条数
+	Order string `json:"order" form:"order"` //排序方式
 }

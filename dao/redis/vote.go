@@ -87,7 +87,7 @@ func CreatePost(postId int64) error {
 
 	//在redis中更新帖子分数
 	pipeline.ZAdd(getRedisKey(KeyPostScoreZSet), redis.Z{
-		Score:  float64(0),
+		Score:  float64(time.Now().Unix()),
 		Member: postId,
 	})
 

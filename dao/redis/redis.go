@@ -27,9 +27,9 @@ func Init(cfg *settings.RedisConfig) (err error) {
 
 	_, err = client.Ping().Result()
 	if err != nil {
-		return err
+		return
 	}
-	return nil
+	return
 }
 
 func Close() {

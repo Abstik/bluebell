@@ -51,7 +51,7 @@ func GetPostDetailHandler(c *gin.Context) {
 	//2.根据id取出帖子数据（查数据库）
 	data, err := logic.GetPostById(pid)
 	if err != nil {
-		zap.L().Error("获取帖子详情失败", zap.Error(err))
+		zap.L().Error("logic.GetPostById failed", zap.Error(err))
 		ResponseError(c, CodeServerBusy)
 		return
 	}
@@ -85,9 +85,39 @@ func GetPostListHandler(c *gin.Context) {
 	//获取数据
 	data, err := logic.GetPostList(pageNum, pageSize)
 	if err != nil {
-		zap.L().Error("获取帖子列表失败", zap.Error(err))
+		zap.L().Error("logic.GetPostList failed", zap.Error(err))
 		ResponseError(c, CodeServerBusy)
 		return
 	}
 	ResponseSuccess(c, data)
+}
+
+// 升级版查询帖子列表接口
+// 根据前端传来的参数,动态获取帖子列表（按照创建时间or分数排序）
+// 1.获取参数
+// 2.去redis查询id列表
+// 3.根据id去数据库查询帖子详细信息
+func GetPostListHandler2(c *gin.Context) {
+	//初始化结构体时指定初始默认参数
+	p := &models.PostListParam{
+		Page:  1,
+		Size:  10,
+		Order: models.OrderTime,
+	}
+	err := c.ShouldBindQuery(p)
+	if err != nil {
+		zap.L().Error("请求参数错误", zap.Error(err))
+		ResponseError(c, CodeInvalidParam)
+		return
+	}
+
+	//获取数据
+	data, err := logic.GetPostList2(p)
+	if err != nil {
+		zap.L().Error("logic.GetPostList2 failed", zap.Error(err))
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+	ResponseSuccess(c, data)
+	return
 }

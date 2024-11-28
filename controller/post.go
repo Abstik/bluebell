@@ -121,3 +121,31 @@ func GetPostListHandler2(c *gin.Context) {
 	ResponseSuccess(c, data)
 	return
 }
+
+// 根据社区查询该社区分类下的帖子详情列表
+func GetCommunityPostListHandler(c *gin.Context) {
+	//初始化结构体时指定初始默认参数
+	p := &models.CommunityPostListParam{
+		PostListParam: models.PostListParam{
+			Page:  1,
+			Size:  10,
+			Order: models.OrderTime,
+		},
+	}
+	err := c.ShouldBindQuery(p)
+	if err != nil {
+		zap.L().Error("请求参数错误", zap.Error(err))
+		ResponseError(c, CodeInvalidParam)
+		return
+	}
+
+	//根据社区查询该社区分类下的帖子列表
+	data, err := logic.GetCommunityPostList(p)
+	if err != nil {
+		zap.L().Error("logic.GetCommunityPostList failed", zap.Error(err))
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+	ResponseSuccess(c, data)
+	return
+}

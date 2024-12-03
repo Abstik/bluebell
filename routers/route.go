@@ -4,8 +4,10 @@ import (
 	"bluebell/controller"
 	"bluebell/logger"
 	"bluebell/middlewares"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 )
 
 func SetupRouter(mode string) *gin.Engine {
@@ -14,7 +16,7 @@ func SetupRouter(mode string) *gin.Engine {
 	}
 
 	r := gin.New()
-	r.Use(logger.GinLogger(), logger.GinRecovery(true))
+	r.Use(logger.GinLogger(), logger.GinRecovery(true), middlewares.RateLimitMiddleware(2*time.Second, 1))
 
 	//注册业务路由
 	v1 := r.Group("/api/v1")
@@ -47,6 +49,9 @@ func SetupRouter(mode string) *gin.Engine {
 		v1.POST("/vote", controller.PostVoteController)
 
 	}
+
+	//注册pprof相关路由
+	pprof.Register(r)
 
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
